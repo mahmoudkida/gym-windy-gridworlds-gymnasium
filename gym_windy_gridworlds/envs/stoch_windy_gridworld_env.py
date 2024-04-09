@@ -65,11 +65,11 @@ class StochWindyGridWorldEnv(gym.Env):
                     self.f[s,self.actions['L'], w] = self.goal_state                    
                 else:
                     i, j = self.dim1to2(s)
-#                    print(i,j)
+    #                    print(i,j)
                     
                     if self.wind[j] != 0: 
                         wind = self.wind[j] + w - self.range_random_wind
-#                        print('wind=',wind)
+    #                        print('wind=',wind)
                     else: 
                         wind = 0
                     self.f[s,self.actions['U'], w] = self.dim2to1((max(i - 1 - wind, 0), j))
@@ -100,8 +100,8 @@ class StochWindyGridWorldEnv(gym.Env):
         next_states = np.unique(self.f[state, action, :])
         reward = np.ones(len(next_states)) * -1
         reward[np.where(next_states == self.goal_state)] = 0
-#        if state==self.goal_state: 
-#            reward = np.zeros(len(next_states))
+    #        if state==self.goal_state: 
+    #            reward = np.zeros(len(next_states))
         return reward   
     
     def f(self, s, a, w):
@@ -124,21 +124,21 @@ class StochWindyGridWorldEnv(gym.Env):
         P=np.zeros((self.nS+1,self.nA,self.nS+1))
         if force_noise is None:
             newS = self.f[s,a,noise + self.range_random_wind]
-#            print(newS)
+    #            print(newS)
             # P(s' | w) = 1_{s'=f(s,a,w)} x Gamma + 1_{s'=new_absorb_state} x 1- Gamma
             P[s,a,newS]= self.gamma 
             P[s,a,self.nS]= 1.0-self.gamma 
-#            print(self.gamma)
-#            print(1-self.gamma)
-#            print(P[s,a,self.nS])
-#            print(np.nonzero(P[s,a,:]))
+    #            print(self.gamma)
+    #            print(1-self.gamma)
+    #            print(P[s,a,self.nS])
+    #            print(np.nonzero(P[s,a,:]))
             prob = P[s,a,np.nonzero(P[s,a,:])][0].tolist()
-#            print(prob)
+    #            print(prob)
             destination = self.np_random.choice(np.append(newS,self.nS), 1, p=prob)[0]
             
-#            prob = self.P_new[s,a,np.nonzero(self.P_new[s,a,:])][0].tolist()
-#            destination = self.np_random.choice(np.append(np.unique(self.f[s,a,:]),self.nS), 1,\
-#                                           p=prob)[0] # TODO check unique here makes the array sorted
+    #            prob = self.P_new[s,a,np.nonzero(self.P_new[s,a,:])][0].tolist()
+    #            destination = self.np_random.choice(np.append(np.unique(self.f[s,a,:]),self.nS), 1,\
+    #                                           p=prob)[0] # TODO check unique here makes the array sorted
            
             if destination ==  self.goal_state:
                 reward = 0
@@ -151,13 +151,13 @@ class StochWindyGridWorldEnv(gym.Env):
                 isdone = False
             return  destination, reward, isdone, wind, noise
         else: 
-#            noise = force_noise 
-#            newS = self.f[s,a,noise + self.range_random_wind]
-#            P[s,a,newS]= self.gamma 
-#            P[s,a,self.nS]= 1-self.gamma 
-#            prob = P[s,a,np.nonzero(P[s,a,:])][0].tolist()
-#            destination = self.np_random.choice(np.append(newS,self.nS), 1,\
-#                                           p=prob)[0]
+    #            noise = force_noise 
+    #            newS = self.f[s,a,noise + self.range_random_wind]
+    #            P[s,a,newS]= self.gamma 
+    #            P[s,a,self.nS]= 1-self.gamma 
+    #            prob = P[s,a,np.nonzero(P[s,a,:])][0].tolist()
+    #            destination = self.np_random.choice(np.append(newS,self.nS), 1,\
+    #                                           p=prob)[0]
             return self._virtual_step_f( s, a, force_noise=noise)
         
     def simulate_sample_path(self):
@@ -171,7 +171,7 @@ class StochWindyGridWorldEnv(gym.Env):
         Parameters
         ----------
         action : 0 = Up, 1 = Right, 2 = Down, 3 = Left
-
+    
         Returns
         -------
         ob, reward, episode_over, info : tuple
@@ -201,42 +201,42 @@ class StochWindyGridWorldEnv(gym.Env):
         return np.unravel_index(state, self.grid_dimensions)
     
     # this function is depreciated and _virtual_step_f is used instead            
-#    def _virtual_step(self, state, action, force_noise=None):
-#        '''set up destinations for each action in each state'''
-#        i, j= self.dim1to2(state)
-#        ##############
-#        if force_noise is None:
-#            # case 1 where all wind tiles are affected by the same noise scalar, 
-#            # noise1 is a scalar value added to wind
-#            noise1 = self.np_random.choice(self.w_range, 1, p=self.probabilities)[0] 
-#            # case 2  where each wind tile is affected by a different noise 
-#            # noise2 is a vector added to wind
-#            noise2 = self.np_random.choice(self.w_range, self.num_wind_tiles, p=self.probabilities)
-#            noise = noise1 if self.noise_case==1 else noise2
-#        else:   
-#            noise = force_noise
-#        #print('noise=', noise)
-#        wind = np.copy(self.wind)
-#        wind[np.where( wind > 0 )] += noise 
-#        ##############
-#        destination = dict()
-#        destination[self.actions['U']] = self.dim2to1((max(i - 1 - wind[j], 0), j))
-#        destination[self.actions['R']] = self.dim2to1((min(max(i - wind, 0),self.grid_height - 1),\
-#                                                       min(j + 1, self.grid_width - 1)))
-#        destination[self.actions['D']] = self.dim2to1((max(min(i + 1 - wind[j], \
-#                                            self.grid_height - 1), 0), j))
-#        destination[self.actions['L']] = self.dim2to1((min(max(i - wind, 0),self.grid_height - 1),\
-#                                                       max(j - 1, 0)))
-#
-#        if state ==  self.goal_state: destination[action] = self.goal_state
-#        if destination[action] ==  self.goal_state:
-#            reward = 0
-#            isdone = True
-#        else:
-#            reward = -1
-#            isdone = False
-#        return  destination[action], reward, isdone, wind, noise
-
+    #    def _virtual_step(self, state, action, force_noise=None):
+    #        '''set up destinations for each action in each state'''
+    #        i, j= self.dim1to2(state)
+    #        ##############
+    #        if force_noise is None:
+    #            # case 1 where all wind tiles are affected by the same noise scalar, 
+    #            # noise1 is a scalar value added to wind
+    #            noise1 = self.np_random.choice(self.w_range, 1, p=self.probabilities)[0] 
+    #            # case 2  where each wind tile is affected by a different noise 
+    #            # noise2 is a vector added to wind
+    #            noise2 = self.np_random.choice(self.w_range, self.num_wind_tiles, p=self.probabilities)
+    #            noise = noise1 if self.noise_case==1 else noise2
+    #        else:   
+    #            noise = force_noise
+    #        #print('noise=', noise)
+    #        wind = np.copy(self.wind)
+    #        wind[np.where( wind > 0 )] += noise 
+    #        ##############
+    #        destination = dict()
+    #        destination[self.actions['U']] = self.dim2to1((max(i - 1 - wind[j], 0), j))
+    #        destination[self.actions['R']] = self.dim2to1((min(max(i - wind, 0),self.grid_height - 1),\
+    #                                                       min(j + 1, self.grid_width - 1)))
+    #        destination[self.actions['D']] = self.dim2to1((max(min(i + 1 - wind[j], \
+    #                                            self.grid_height - 1), 0), j))
+    #        destination[self.actions['L']] = self.dim2to1((min(max(i - wind, 0),self.grid_height - 1),\
+    #                                                       max(j - 1, 0)))
+    #
+    #        if state ==  self.goal_state: destination[action] = self.goal_state
+    #        if destination[action] ==  self.goal_state:
+    #            reward = 0
+    #            isdone = True
+    #        else:
+    #            reward = -1
+    #            isdone = False
+    #        return  destination[action], reward, isdone, wind, noise
+    
     def _virtual_step_f(self, state, action, force_noise=None):
         '''Set up destinations for each action in each state only works with case 1
            and use the lookup table self.f. Much faster than _virtual_step.
@@ -268,7 +268,7 @@ class StochWindyGridWorldEnv(gym.Env):
         Parameters
         ----------
         action : 0 = Up, 1 = Right, 2 = Down, 3 = Left
-
+    
         Returns
         -------
         ob, reward, episode_over, info : tuple
@@ -293,15 +293,15 @@ class StochWindyGridWorldEnv(gym.Env):
         self.observation = self.start_state
         self.realized_wind = self.wind
         return self.observation   
-
+    
      def render(self, mode='human', close=False):
         ''' Renders the environment. Code borrowed and then modified 
             from https://github.com/dennybritz/reinforcement-learning'''
         if close:
             return
-
+    
         outfile = StringIO() if mode == 'ansi' else sys.stdout
-
+    
         for s in range(self.nS):
             position = self.dim1to2(s)
             # print(self.s)
@@ -311,13 +311,13 @@ class StochWindyGridWorldEnv(gym.Env):
                 output = " T "
             else:
                 output = " o "
-
+    
             if position[1] == 0:
                 output = output.lstrip()
             if position[1] == self.grid_dimensions[1] - 1:
                 output = output.rstrip()
                 output += "\n"
-
+    
             outfile.write(output)
         for i in range(len(self.realized_wind)):
             output =' ' + str(self.realized_wind[i]) + ' '
@@ -335,6 +335,6 @@ class StochWindyGridWorldEnv(gym.Env):
         ''' sets the seed for the environment'''
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
-         
+             
 
         
