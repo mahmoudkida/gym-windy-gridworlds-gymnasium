@@ -15,7 +15,7 @@ Clone this repo:
 
 .. code::
 
-		$ git clone https://github.com/ibrahim-elshar/gym-windy-gridworlds.git
+		$ git clone https://github.com/mahmoudkida/gym-windy-gridworlds-gymnasium.git
 		
 
 Then install this package via
