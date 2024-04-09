@@ -12,5 +12,5 @@ setup(name='gym_windy_gridworlds',
 	  license='MIT License',
 	  url='https://github.com/ibrahim-elshar/gym-windy-gridworlds',
 	  packages=find_packages(),
-      install_requires=['gym>=0.2.3', 'numpy']
+      install_requires=['gymnasium>=0.29.1', 'numpy']
       )
