@@ -366,3 +366,12 @@ class StochWindyGridWorldEnv(gym.Env):
         """sets the seed for the environment"""
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
+
+    def get_transition_probabilities(self):
+        P = {}
+        for s in range(self.nS):
+            P[s] = {a: [] for a in range(self.nA)}
+            for a in range(self.nA):
+                for prob, next_state, reward, done in self.trans[s, a]:
+                    P[s][a].append((prob, next_state, reward, done))
+        return P
