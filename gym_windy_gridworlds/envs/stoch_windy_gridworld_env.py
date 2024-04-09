@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import numpy as np
-import gym
+import gymnasium as gym  # Changed from 'import gym'
 from gym import spaces
 from gym.utils import seeding
 import sys
-
+from io import StringIO  # Added for rendering
 
 class StochWindyGridWorldEnv(gym.Env):
     '''Creates the Stochastic Windy GridWorld Environment
@@ -294,8 +294,8 @@ class StochWindyGridWorldEnv(gym.Env):
         self.realized_wind = self.wind
         return self.observation   
 
-    def render(self, mode='human', close=False):
-        ''' Renders the environment. Code borrowed and them modified 
+     def render(self, mode='human', close=False):
+        ''' Renders the environment. Code borrowed and then modified 
             from https://github.com/dennybritz/reinforcement-learning'''
         if close:
             return
@@ -332,7 +332,7 @@ class StochWindyGridWorldEnv(gym.Env):
         outfile.write("\n")
     
     def seed(self, seed=None):
-        ''' sets the seed for the envirnment'''
+        ''' sets the seed for the environment'''
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
          
