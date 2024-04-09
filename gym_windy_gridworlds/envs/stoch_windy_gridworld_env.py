@@ -372,6 +372,6 @@ class StochWindyGridWorldEnv(gym.Env):
         for s in range(self.nS):
             P[s] = {a: [] for a in range(self.nA)}
             for a in range(self.nA):
-                for prob, next_state, reward, done in self.trans[s, a]:
-                    P[s][a].append((prob, next_state, reward, done))
+                for next_state, reward, prob, done in self.trans[s, a]:
+                    P[s][a].append((prob, int(next_state), reward, done))
         return P
